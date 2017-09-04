@@ -60,7 +60,7 @@ function readValue(task, done) {
 
     logger.debug('data:', data);
 
-    value = buffer[bufferReadFunc](0);
+    value = buffer[bufferReadFunc](0) || 0;
 
     logger.debug('Converted value:', value, registerAddress);
 
@@ -72,8 +72,6 @@ function readValue(task, done) {
   });
 }
 
-// TODO: Find serial port file. ttyUSB0 or ttyS1(E220)
-// TODO: If opening port takes long time, async function cannot be finished.
 function Gems5200 () {
   var self = this;
 
