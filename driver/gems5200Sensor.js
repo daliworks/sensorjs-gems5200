@@ -24,7 +24,7 @@ var addressTable = {
   REACTIVE_POWER: [40051, 'readFloatBE'],
   FREQ: [40053, 'readFloatBE'],
   PF: [40055, 'readFloatBE'],
-  RUNS: [40225, 'readUInt32BE'],
+  RUNS: [40225, 'readFloatBE'],
 };
 
 function Gems5200Sensor(sensorInfo, options) {
@@ -99,7 +99,12 @@ Gems5200Sensor.prototype._get = function (cb) {
       result.status = 'error';
       result.message = err.message ? err.message : 'Unknown error(No message)';
     } else {
-      result.result[self.dataType] = value;
+      if ((self.sequence == 'TOTAL_WATTHR') || (self.sequence == 'ACTIVE_POWER') || (self.sequence == 'REACTIVE_POWER')) {
+        result.result[self.dataType] = value / 1000.0;
+      }
+      else{
+        result.result[self.dataType] = value;
+      }
       result.time[self.dataType] = Date.now();
     }
 
