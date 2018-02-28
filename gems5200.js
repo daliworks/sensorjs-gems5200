@@ -81,8 +81,8 @@ function Gems5200 () {
   self.clients = [];
   self.callbacks = [];
   self.connecting = false;
-  self.q = async.queue(readValue);
-  self.q.drain = function () {
+  self.dataRequestQueue = async.queue(readValue);
+  self.dataRequestQueue.drain = function () {
     logger.debug('All the tasks have been done.');
   };
 }
@@ -129,7 +129,7 @@ Gems5200.prototype.getValue = function (address, regObj, cb) {
   if (self.sockets[address]) {
     callbackArgs.client = self.clients[address];
     logger.debug('Already connected:', address);
-    self.q.push(callbackArgs, function pushCb(err) {
+    self.dataRequestQueue.push(callbackArgs, function pushCb(err) {
       if (err) {
         logger.error('pushCB error:', err);
         return;
@@ -156,7 +156,7 @@ Gems5200.prototype.getValue = function (address, regObj, cb) {
         while (self.callbacks[address].length > 0) {
           callbackArgs = self.callbacks[address].shift();
           callbackArgs.client = client;
-          self.q.push(callbackArgs, function pushCb(err) {
+          self.dataRequestQueue.push(callbackArgs, function pushCb(err) {
             if (err) {
               logger.error('pushCB error:', err);
               return;
@@ -182,7 +182,7 @@ Gems5200.prototype.getValue = function (address, regObj, cb) {
           delete self.clients[address];
         }
 
-        self.queue.kill();
+        self.dataRquestQueue.kill();
 
         logger.error('Modbus-tcp connection closed: (%s:%s)', deviceAddress, devicePort);
       });
@@ -197,7 +197,7 @@ Gems5200.prototype.getValue = function (address, regObj, cb) {
           delete self.clients[address];
         }
 
-        self.queue.kill();
+        self.dataRequestQueue.kill();
 
         logger.error('Modbus-tcp connection error:', err);
       });
